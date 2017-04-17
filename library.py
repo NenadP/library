@@ -1,19 +1,52 @@
 import itertools
+input = raw_input
 
 class Library:
     def __init__(self):
         self.items = []
         self.users = []
+        self.get_default_books()
 
     # Will hold initial logic for running library
-    def init(self):
-        self.add_item()
-        self.add_item()
-        print self.items[1].item_id
+    def show_menu(self):
+        print "Welcome to the Library"
+        print ""
+        print "Choose:"
+        print "1. Show Library Items"
+        print "2. Show Library Users"
+        print "3. Search for a Book"
+        print "4. Search for a User"
+        print "5. Borrow/Return a book"
+        print "6. Add/Remove an item from the library"
+        print "7. Add/Remove and user from the library"
+        print ""
+
+        action = input()
+
+        if action == "1":
+            self.show_library_items()
+
+        print ""
+        print "Press enter to return to menu"
+        input()
+        self.show_menu()
 
     # Prints Library Items
-    def print_library_items(self):
-        print self.items
+    def show_library_items(self):
+        print "Library currently has following items:"
+        print ""
+        for item in self.items:
+            print "Id: {id}".format(id=item.item_id)
+            print "{title} ({type}), {year}".format(title=item.title, type=item.item_type, year=item.year)
+            if item.item_type == "book":
+                print "Author: {author}".format(author=item.author)
+                print "ISBN: {isbn}".format(isbn=item.isbn)
+                print "Borrowed: {is_borrowed} ".format(is_borrowed = item.is_borrowed == "Yes" if item.is_borrowed == True else "No")
+            if item.item_type == "periodical":
+                print "Editor: {editor}".format(editor=item.editor)
+                print "Volume: {volume}".format(volume=item.volume)
+                print "Issue: {issue}".format(issue=item.issue)
+            print ""
 
     # Print Library Users
     def print_users(self):
@@ -36,32 +69,43 @@ class Library:
         print("Removing user with id:", user_id)
 
     # Adds library item to library
-    def add_item(self):
+    def add_book(self):
         print ("Adding Lybrary item")
-        item = LibraryItem('test', '2017', 'book')
+        item = Library_item('test', '2017', 'book')
         self.items.append(item)
 
     # Removes library item from library
-    def remove_item(self, item_type, id):
+    def remove_book(self, item_type, id):
         print ("Remove Item with id:", id)
+
+    # Add few books to the Library to start with
+    def get_default_books(self):
+        hobbit = Book(9780048231277, "The Hobbit", "J.R.R. Tolkien", 1973)
+        war_and_peace = Book(9781853260629, "War and Peace", "Leo Tolstoy", 1997)
+        the_jungle_book = Book(9781620280119, "The Jungle Book", "Rudyard Kipling", 2013)
+        self.items.extend([hobbit, war_and_peace, the_jungle_book])
+
+        irish_times_1933_1 = Periodical("The Irish Times 1","John Edward Healy", 1993, 20, 1457)
+        irish_times_1933_2 = Periodical("The Irish Times 2", "John Edward Healy", 1993, 20, 1458)
+        self.items.extend([irish_times_1933_1, irish_times_1933_2])
 
 
 # Library Item class, holds common attributes (title, year), could be of type book, periodical
 # Each instance gets unigue id
-class LibraryItem:
+class Library_item:
     get_item_id = itertools.count().next
 
     def __init__(self, title, year, item_type):
-        self.item_id = LibraryItem.get_item_id()
+        self.item_id = Library_item.get_item_id()
         self.title = title
         self.year = year
         self.item_type = item_type
 
 
 # Library Item: Book
-class Book(LibraryItem):
+class Book(Library_item):
     def __init__(self, isbn, title, author, year):
-        LibraryItem.__init__(self, title, year, "book")
+        Library_item.__init__(self, title, year, "book")
         self.isbn = isbn
         self.author = author
         self.can_borrow = True
@@ -69,9 +113,9 @@ class Book(LibraryItem):
 
 
 # Library Item: Periodical
-class Periodical(LibraryItem):
+class Periodical(Library_item):
     def __init__(self, title, editor, year, volume, issue):
-        LibraryItem.__init__(self, title, year, "periodical")
+        Library_item.__init__(self, title, year, "periodical")
         self.editor = editor
         self.volume = volume
         self.issue = issue
@@ -90,4 +134,4 @@ class User:
 
 
 library = Library()
-library.init()
+library.show_menu()
