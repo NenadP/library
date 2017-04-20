@@ -8,7 +8,7 @@ class Library:
         self.get_default_books()
         self.get_default_users()
 
-    # Will hold initial logic for running library
+    # Show main menu
     def show_menu(self):
         print "Welcome to the Library"
         print ""
@@ -41,24 +41,14 @@ class Library:
         print "Library currently has following items:"
         print ""
         for item in items:
-            print "Id: {id}".format(id=item.item_id)
-            print "{title} ({type}), {year}".format(title=item.title, type=item.item_type, year=item.year)
-            if item.item_type == "book":
-                print "Author: {author}".format(author=item.author)
-                print "ISBN: {isbn}".format(isbn=item.isbn)
-                print "Borrowed: {is_borrowed} ".format(is_borrowed = "Yes" if item.is_borrowed == True else "No")
-            if item.item_type == "periodical":
-                print "Editor: {editor}".format(editor=item.editor)
-                print "Volume: {volume}".format(volume=item.volume)
-                print "Issue: {issue}".format(issue=item.issue)
-            print ""
+            item.show()
 
     # Print Library Users
     def show_library_users(self):
         print "Library currently has following users:"
         print ""
         for user in self.users:
-            user.show_user()
+            user.show()
 
     # Search in library using specific search type
     def search(self, search_type):
@@ -169,6 +159,7 @@ class Library:
         natasha = User("Natasha Susnjic Pantic", "Charlesland Grove, Greystones")
         self.users.append(natasha)
 
+
 # Library Item class, holds common attributes (title, year), could be of type book, periodical
 # Each instance gets unigue id
 class Library_item:
@@ -190,6 +181,15 @@ class Book(Library_item):
         self.can_borrow = True
         self.is_borrowed = False
 
+    # Prints the info about Book
+    def show(self):
+        print "Id: {id}".format(id=self.item_id)
+        print "{title} ({type}), {year}".format(title=self.title, type=self.item_type, year=self.year)
+        print "Author: {author}".format(author=self.author)
+        print "ISBN: {isbn}".format(isbn=self.isbn)
+        print "Borrowed: {is_borrowed} ".format(is_borrowed="Yes" if self.is_borrowed == True else "No")
+        print ""
+
 
 # Library Item: Periodical
 class Periodical(Library_item):
@@ -199,6 +199,15 @@ class Periodical(Library_item):
         self.volume = volume
         self.issue = issue
         self.can_borrow = False
+
+    # Prints the info about Periodical
+    def show(self):
+        print "Id: {id}".format(id=self.item_id)
+        print "{title} ({type}), {year}".format(title=self.title, type=self.item_type, year=self.year)
+        print "Editor: {editor}".format(editor=self.editor)
+        print "Volume: {volume}".format(volume=self.volume)
+        print "Issue: {issue}".format(issue=self.issue)
+        print ""
 
 
 # Library User
@@ -211,7 +220,8 @@ class User:
         self.address = address
         self.borrowed_books = []
 
-    def show_user(self):
+    # Prints the info about User
+    def show(self):
         print "Id: {id}".format(id=self.user_id)
         print "Name: {name}".format(name=self.name)
         print "Address: {address}".format(address=self.address)
