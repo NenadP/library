@@ -6,6 +6,7 @@ class Library:
         self.items = []
         self.users = []
         self.get_default_books()
+        self.get_default_users()
 
     # Will hold initial logic for running library
     def show_menu(self):
@@ -25,6 +26,9 @@ class Library:
 
         if action == "1":
             self.show_library_items()
+
+        if action == "2":
+            self.show_library_users()
 
         print ""
         print "Press enter to return to menu"
@@ -49,8 +53,11 @@ class Library:
             print ""
 
     # Print Library Users
-    def print_users(self):
-        print self.users
+    def show_library_users(self):
+        print "Library currently has following users:"
+        print ""
+        for user in self.users:
+            user.show_user()
 
     # Search in library using specific search type
     def search(self, search_type):
@@ -89,6 +96,9 @@ class Library:
         irish_times_1933_2 = Periodical("The Irish Times 2", "John Edward Healy", 1993, 20, 1458)
         self.items.extend([irish_times_1933_1, irish_times_1933_2])
 
+    def get_default_users(self):
+        natasha = User("Natasha Susnjic Pantic", "Charlesland Grove, Greystones")
+        self.users.append(natasha)
 
 # Library Item class, holds common attributes (title, year), could be of type book, periodical
 # Each instance gets unigue id
@@ -124,14 +134,28 @@ class Periodical(Library_item):
 
 # Library User
 class User:
-    get_item_id = itertools.count().next
+    get_user_id = itertools.count().next
 
     def __init__(self, name, address):
-        self.item_id = User.get_item_id()
+        self.user_id = User.get_user_id()
         self.name = name
         self.address = address
         self.borrowed_books = []
 
+    def show_user(self):
+        print "Id: {id}".format(id=self.user_id)
+        print "Name: {name}".format(name=self.name)
+        print "Address: {address}".format(address=self.address)
+        print "Borrowed Books:"
+        self.show_user_borrowed_books_excerpt()
+        print ""
+
+    def show_user_borrowed_books_excerpt(self):
+        if len(self.borrowed_books) == 0:
+            print "No books borrowed."
+        else:
+            for book in self.borrowed_books:
+                print "Id: {id}, {title},{author}".format(id=book.item_id, title=book.title, author=book.author)
 
 library = Library()
 library.show_menu()
