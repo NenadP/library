@@ -25,10 +25,11 @@ class Library:
         action = input()
 
         if action == "1":
-            self.show_library_items()
-
+            self.show_library_items(self.items)
         if action == "2":
             self.show_library_users()
+        if action == "5":
+            self.borrow_return_book_menu()
 
         print ""
         print "Press enter to return to menu"
@@ -36,16 +37,16 @@ class Library:
         self.show_menu()
 
     # Prints Library Items
-    def show_library_items(self):
+    def show_library_items(self, items):
         print "Library currently has following items:"
         print ""
-        for item in self.items:
+        for item in items:
             print "Id: {id}".format(id=item.item_id)
             print "{title} ({type}), {year}".format(title=item.title, type=item.item_type, year=item.year)
             if item.item_type == "book":
                 print "Author: {author}".format(author=item.author)
                 print "ISBN: {isbn}".format(isbn=item.isbn)
-                print "Borrowed: {is_borrowed} ".format(is_borrowed = item.is_borrowed == "Yes" if item.is_borrowed == True else "No")
+                print "Borrowed: {is_borrowed} ".format(is_borrowed = "Yes" if item.is_borrowed == True else "No")
             if item.item_type == "periodical":
                 print "Editor: {editor}".format(editor=item.editor)
                 print "Volume: {volume}".format(volume=item.volume)
@@ -63,9 +64,77 @@ class Library:
     def search(self, search_type):
         print search_type
 
+    # Menu to trigger borrow or return action
+    def borrow_return_book_menu(self):
+        print "Do you want to borrow(1), or return a book(2)?"
+        answer = input()
+        if answer == "1":
+            self.borrow_book()
+        if answer == "2":
+            self.return_book()
+
     # Borrow book from the library
-    def borrow(self, item_type, item_id, user_id):
-        print (item_type, item_id, user_id)
+    # Asks for a user to lend to, book to borrow and then sets is_borrowed on selected book to True
+    # and adds a book to user.borrowed_books
+    def borrow_book(self):
+        print "Borrow a book for which user?"
+        selected_user = self.select_by_id(self.users, "user")
+        print "Which book to borrow?"
+        selected_book = self.select_by_id(self.items, "book")
+        if selected_book.item_type == "periodical":
+            print "Sorry you can't borrow Periodical"
+            print ""
+            self.borrow_book()
+        elif selected_book.is_borrowed is True:
+            print "Sorry this book is already lend"
+            print ""
+            self.borrow_book()
+        else:
+            selected_book.is_borrowed = True
+            selected_user.borrowed_books.append(selected_book)
+            print "Book {book} lend to user: {name}".format(book=selected_book.title, name=selected_user.name)
+
+    # Return book from the library
+    # Asks for a user which returns a book, book to return and then sets is_borrowed on selected book to False
+    # and removes a book to user.borrowed_books
+    def return_book(self):
+        print "Return a book for which user?"
+        selected_user = self.select_by_id(self.users, "user")
+        print "Which book do you want to return?"
+        selected_book = self.select_by_id(selected_user.borrowed_books, "book")
+
+        if selected_book:
+            selected_book.is_borrowed = False
+            selected_user.borrowed_books.remove(selected_book)
+            print "Book {book} was returned by user: {name}".format(book=selected_book.title, name=selected_user.name)
+
+    # This method takes items (could be users, library items or user borrowed items), item_id_property
+    # ("user" or "book") to determine helper show methods and determine item_id when searchin inside of items
+    # It returns selected_item whish is and object found based on user input
+    def select_by_id(self, items, select_type_param):
+        print "(Type in {select_type} ID to select one, or type \"s\" to show list {select_type}s)" \
+            .format(select_type=select_type_param)
+        answer = input()
+        selected_item = None
+        item_id_property = "user_id" if select_type_param == "user" else "item_id"
+        if answer == "s":
+            if select_type_param == "book":
+                self.show_library_items(items)
+                return self.select_by_id(items, select_type_param)
+            if select_type_param == "user":
+                self.show_library_users()
+                return self.select_by_id(items, select_type_param)
+        else:
+            answer_int = int(answer)
+            for item in items:
+                item_id = getattr(item, item_id_property)
+                if item_id == answer_int:
+                    selected_item = item
+                    break
+            if selected_item is None:
+                print "I did not find {select_type} with that ID.".format(select_type=select_type_param)
+                return self.select_by_id(items, select_type_param)
+        return selected_item
 
     # Adds user to the library
     def add_user(self):
