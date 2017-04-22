@@ -28,6 +28,10 @@ class Library:
             self.show_library_items(self.items)
         if action == "2":
             self.show_library_users()
+        if action == "3":
+            self.search_items()
+        if action == "4":
+            self.search_users()
         if action == "5":
             self.borrow_return_book_menu()
 
@@ -50,9 +54,61 @@ class Library:
         for user in self.users:
             user.show()
 
-    # Search in library using specific search type
-    def search(self, search_type):
-        print search_type
+    # Search for books and periodicals by chosen option
+    def search_items(self):
+        print "Search book or periodicals"
+        search_parameters = ["item_id", "title", "author", "isbn", "year", "item_type", "editor", "volume", "issue"]
+        self.search(search_parameters, self.items)
+
+    # Search for users by chosen option
+    def search_users(self):
+        print "Search for users"
+        search_parameters = ["user_id", "name", "address"]
+        self.search(search_parameters, self.users)
+
+    # Search for users, books or periodicals
+    # Menu will ask to choose from search_parameter provided, and then for actual search string
+    # The record and a search string provided will be converted to string and made lowercase
+    # it will search in items, and print out results if found, if not it will inform
+    # user that search did not yield any results
+    def search(self, search_parameters, items):
+        print "Enter search parameter:"
+        search_parameters_string = ""
+
+        for index, param in enumerate(search_parameters):
+            search_parameters_string += "({option}){param}".format(option=index + 1, param=param)
+            if index != len(search_parameters) - 1:
+                search_parameters_string += ", "
+        print search_parameters_string
+        answer = input()
+
+        prop = int(answer)
+        if 0 < prop < 10:
+            search_parameter = search_parameters[prop - 1]
+            print "You are searching by: {search_parameter}".format(search_parameter=search_parameter)
+            print "Enter search string:"
+            search_string = input()
+            search_string = search_string.lower()
+            items_found = []
+
+            for item in items:
+                value = getattr(item, search_parameter, None)
+                value = str(value)
+                value = value.lower()
+                is_found = value.find(search_string) > -1
+
+                if is_found:
+                    items_found.append(item)
+
+            if len(items_found) > 0:
+                for item in items_found:
+                    item.show()
+            else:
+                print "Your search didn't yield any results"
+        else:
+            print "Sorry, you didn't chose valid available option."
+            print ""
+            return self.search_items()
 
     # Menu to trigger borrow or return action
     def borrow_return_book_menu(self):
