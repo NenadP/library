@@ -15,13 +15,13 @@ class Library:
         print "Welcome to the Library"
         print ""
         print "Choose:"
-        print "1. Show Library Items"
-        print "2. Show Library Users"
-        print "3. Search for a Book"
-        print "4. Search for a User"
-        print "5. Borrow/Return a book"
-        print "6. Add/Remove an item from the library"
-        print "7. Add/Remove and user from the library"
+        print "(1) Show Library Items"
+        print "(2) Show Library Users"
+        print "(3) Search for a Book"
+        print "(4) Search for a User"
+        print "(5) Borrow/Return a book"
+        print "(6) Add/Remove an item from the library"
+        print "(7) Add/Remove and user from the library"
         print ""
 
         action = input()
@@ -38,6 +38,8 @@ class Library:
             self.borrow_return_book_menu()
         if action == "6":
             self.add_remove_item()
+        if action == "7":
+            self.add_remove_user()
 
         print ""
         print "Press enter to return to menu"
@@ -186,13 +188,14 @@ class Library:
                 return self.select_by_id(items, select_type_param)
         return selected_item
 
+    # Add or remove Library item
     def add_remove_item(self):
         print "Do you want to (1)add or (2)remove a book from Library?"
         answer = input()
         if answer == "1":
             self.add_book()
         elif answer == "2":
-            self.remove_item()
+            self.remove(self.items, "item")
         else:
             print "Invalid option selected"
             print ""
@@ -210,34 +213,68 @@ class Library:
         self.items.append(new_book)
         print "Book added to Library under id: {id}".format(id=new_book.item_id)
 
-    # Removes library item from library
-    def remove_item(self):
-        print ("Please enter ID of book or periodical to remove:")
-        is_found = False
-        book_id = input()
-        for item in self.items:
-            print (item.item_id, int(book_id))
-            if item.item_id == int(book_id):
-                is_found = True
-                print "Are you sure you want to remove: {title} (type: yes)".format(title=item.title)
-                answer = input()
-                if answer == "yes":
-                    self.items.remove(item)
-                    print "Successfully removed {type}.".format(type=item.item_type)
-                    break
-                else:
-                    print "Cancelled removed book."
-                    break
-        if is_found is False:
-            print "I did not find book with that id"
+    # Add or remove user menu
+    def add_remove_user(self):
+        print "Do you want to (1)add or (2)remove an user from Library?"
+        answer = input()
+
+        if answer == "1":
+            self.add_user()
+        elif answer == "2":
+            self.remove(self.users, "user")
+        else:
+            print "Invalid option selected"
+            print ""
+            return self.add_remove_user()
 
     # Adds user to the library
     def add_user(self):
         print("Adding new User")
+        name = input("Enter user name:")
+        address = input("Enter user address:")
 
-    # Removes an user from the library by user_id
-    def remove_user(self, user_id):
-        print("Removing user with id:", user_id)
+        new_user = User(name, address)
+        self.users.append(new_user)
+        print "User added to Library under id: {id}".format(id=new_user.user_id)
+
+    # Removes library item or user from library
+    # will accept items (users or library items) to remove from,
+    # item_type for customising menu messages, but the process is same for users an items
+    def remove(self, items, item_type):
+        print "Please enter ID of an {type} to remove, type (s) to show a list of {type}s:".format(type = item_type)
+        is_found = False
+        item_id_input = input()
+
+        if item_id_input == "s":
+            if item_type == "item":
+                self.show_library_items(self.items)
+            if item_type == "user":
+                self.show_library_users()
+            return self.remove(items, item_type)
+
+        item_id_input = int(item_id_input)
+
+        for item in items:
+            id_param = item_type + "_id"
+            item_id = getattr(item, id_param, None)
+
+            if item_id == item_id_input:
+                is_found = True
+                if item_type == "item":
+                    print "Are you sure you want to remove: {title} (type: yes)".format(title=item.title)
+                if item_type == "user":
+                    print "Are you sure you want to remove user: {name} (type: yes)".format(name=item.name)
+
+                answer = input()
+                if answer == "yes":
+                    items.remove(item)
+                    print "Successfully removed an {type}.".format(type=item_type)
+                    break
+                else:
+                    print "Cancelled removing {type}.".format(type=item_type)
+                    break
+        if is_found is False:
+            print "could not find an {type} with that id".format(type=item_type)
 
     # Add few books to the Library to start with
     def get_default_books(self):
@@ -358,12 +395,13 @@ class User:
         self.show_user_borrowed_books_excerpt()
         print ""
 
+    # Shows books lend to this user
     def show_user_borrowed_books_excerpt(self):
         if len(self.borrowed_books) == 0:
             print "No books borrowed."
         else:
             for book in self.borrowed_books:
-                print "Id: {id}, {title},{author}".format(id=book.item_id, title=book.title, author=book.author)
+                print "Id: {id}, {title}, {author}".format(id=book.item_id, title=book.title, author=book.author)
 
 library = Library()
 library.show_menu()
