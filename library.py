@@ -1,4 +1,6 @@
 import itertools
+import datetime
+
 input = raw_input
 
 class Library:
@@ -34,6 +36,8 @@ class Library:
             self.search_users()
         if action == "5":
             self.borrow_return_book_menu()
+        if action == "6":
+            self.add_remove_item()
 
         print ""
         print "Press enter to return to menu"
@@ -182,6 +186,51 @@ class Library:
                 return self.select_by_id(items, select_type_param)
         return selected_item
 
+    def add_remove_item(self):
+        print "Do you want to (1)add or (2)remove a book from Library?"
+        answer = input()
+        if answer == "1":
+            self.add_book()
+        elif answer == "2":
+            self.remove_item()
+        else:
+            print "Invalid option selected"
+            print ""
+            return  self.add_book()
+
+    # Adds library item to library
+    def add_book(self):
+        print ("Adding Lybrary item")
+        title = input("Enter book title:")
+        author = input("Enter book author:")
+        isbn = Book.input_isbn()
+        year = Book.input_year()
+
+        new_book = Book(isbn, title, author, year)
+        self.items.append(new_book)
+        print "Book added to Library under id: {id}".format(id=new_book.item_id)
+
+    # Removes library item from library
+    def remove_item(self):
+        print ("Please enter ID of book or periodical to remove:")
+        is_found = False
+        book_id = input()
+        for item in self.items:
+            print (item.item_id, int(book_id))
+            if item.item_id == int(book_id):
+                is_found = True
+                print "Are you sure you want to remove: {title} (type: yes)".format(title=item.title)
+                answer = input()
+                if answer == "yes":
+                    self.items.remove(item)
+                    print "Successfully removed {type}.".format(type=item.item_type)
+                    break
+                else:
+                    print "Cancelled removed book."
+                    break
+        if is_found is False:
+            print "I did not find book with that id"
+
     # Adds user to the library
     def add_user(self):
         print("Adding new User")
@@ -189,16 +238,6 @@ class Library:
     # Removes an user from the library by user_id
     def remove_user(self, user_id):
         print("Removing user with id:", user_id)
-
-    # Adds library item to library
-    def add_book(self):
-        print ("Adding Lybrary item")
-        item = Library_item('test', '2017', 'book')
-        self.items.append(item)
-
-    # Removes library item from library
-    def remove_book(self, item_type, id):
-        print ("Remove Item with id:", id)
 
     # Add few books to the Library to start with
     def get_default_books(self):
@@ -236,6 +275,40 @@ class Book(Library_item):
         self.author = author
         self.can_borrow = True
         self.is_borrowed = False
+
+    # Asks user to input ISBN, validates if ISBN is an integer and contains exactly 13 numbers
+    @staticmethod
+    def input_isbn():
+        isbn = input("Enter book ISBN:")
+        isbn_len = 13
+        try:
+            isbn_int = int(isbn)
+            is_isbn_len = len(isbn) == isbn_len
+            if is_isbn_len:
+                return isbn
+            else:
+                print "ISBN needs to be 13 numbers"
+                return Book.input_isbn()
+        except:
+            print "ISBN must be a number"
+            return  Book.input_isbn()
+
+    # Asks user to input a year, validates if it is a number and if it is not in the future
+    @staticmethod
+    def input_year():
+        year = input("Enter year of publishing")
+        try:
+            year_int = int(year)
+            now = datetime.datetime.now()
+            print now.year
+            if year_int < now.year:
+                return year
+            else:
+                print "Year should not be in future"
+                return Book.input_year()
+        except:
+            print "Year must be a number"
+            return Book.input_year()
 
     # Prints the info about Book
     def show(self):
